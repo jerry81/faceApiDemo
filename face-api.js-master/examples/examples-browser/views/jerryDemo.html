@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
@@ -9,6 +10,7 @@
   <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 </head>
+
 <body>
   <div id="navbar"></div>
   <div class="center-content page-container">
@@ -61,16 +63,10 @@
           <label for="minConfidence">Min Confidence:</label>
           <input disabled value="0.5" id="minConfidence" type="text" class="bold">
         </div>
-        <button
-          class="waves-effect waves-light btn"
-          onclick="onDecreaseMinConfidence()"
-        >
+        <button class="waves-effect waves-light btn" onclick="onDecreaseMinConfidence()">
           <i class="material-icons left">-</i>
         </button>
-        <button
-          class="waves-effect waves-light btn"
-          onclick="onIncreaseMinConfidence()"
-        >
+        <button class="waves-effect waves-light btn" onclick="onIncreaseMinConfidence()">
           <i class="material-icons left">+</i>
         </button>
       </div>
@@ -97,16 +93,10 @@
           <label for="scoreThreshold">Score Threshold:</label>
           <input disabled value="0.5" id="scoreThreshold" type="text" class="bold">
         </div>
-        <button
-          class="waves-effect waves-light btn"
-          onclick="onDecreaseScoreThreshold()"
-        >
+        <button class="waves-effect waves-light btn" onclick="onDecreaseScoreThreshold()">
           <i class="material-icons left">-</i>
         </button>
-        <button
-          class="waves-effect waves-light btn"
-          onclick="onIncreaseScoreThreshold()"
-        >
+        <button class="waves-effect waves-light btn" onclick="onIncreaseScoreThreshold()">
           <i class="material-icons left">+</i>
         </button>
         <p id="output"></p>
@@ -114,75 +104,114 @@
     </span>
     <!-- tiny_face_detector_controls -->
 
-  </body>
-
-  <script>
-    let forwardTimes = []
-    let withBoxes = true
-
-    function onChangeHideBoundingBoxes(e) {
-      withBoxes = !$(e.target).prop('checked')
-    }
-
-    function updateTimeStats(timeInMs) {
-      forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
-      const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
-      $('#time').val(`${Math.round(avgTimeInMs)} ms`)
-      $('#fps').val(`${faceapi.utils.round(1000 / avgTimeInMs)}`)
-    }
-
-    async function onPlay() {
-      const videoEl = $('#inputVideo').get(0)
-
-      if(videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
-        return setTimeout(() => onPlay())
-
-
-      const options = getFaceDetectorOptions()
-
-      const ts = Date.now()
-
-      const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks()
-
-      updateTimeStats(Date.now() - ts)
-
-      if (result) {
-        const canvas = $('#overlay').get(0)
-        const dims = faceapi.matchDimensions(canvas, videoEl, true)
-        const resizedResult = faceapi.resizeResults(result, dims)
-
-        if (withBoxes) {
-          faceapi.draw.drawDetections(canvas, resizedResult)
-        }
-        faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
-      //  const landmarks = await faceapi.detectFaceLandmarks(videoEl)
-      //  const mouth = landmarks.getMouth()
-      //  document.getElementById('#output').innerHTML = mouth.toString()
-      }
-
-      setTimeout(() => onPlay())
-    }
-
-    async function run() {
-      // load face detection and face landmark models
-      await changeFaceDetector(TINY_FACE_DETECTOR)
-      await faceapi.loadFaceLandmarkModel('/')
-      changeInputSize(224)
-
-      // try to access users webcam and stream the images
-      // to the video element
-      const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
-      const videoEl = $('#inputVideo').get(0)
-      videoEl.srcObject = stream
-    }
-
-    function updateResults() {}
-
-    $(document).ready(function() {
-      renderNavBar('#navbar', 'webcam_face_landmark_detection')
-      initFaceDetectionControls()
-      run()
-    })
-  </script>
 </body>
+
+<script>
+  let forwardTimes = []
+  let withBoxes = true
+
+  function onChangeHideBoundingBoxes(e) {
+    withBoxes = !$(e.target).prop('checked')
+  }
+
+  function updateTimeStats(timeInMs) {
+    forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
+    const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
+    $('#time').val(`${Math.round(avgTimeInMs)} ms`)
+    $('#fps').val(`${faceapi.utils.round(1000 / avgTimeInMs)}`)
+  }
+
+  async function onPlay() {
+    const videoEl = $('#inputVideo').get(0)
+
+    if (videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
+      return setTimeout(() => onPlay())
+
+
+    const options = getFaceDetectorOptions()
+
+    const ts = Date.now()
+
+    const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks()
+
+    updateTimeStats(Date.now() - ts)
+
+    if (result) {
+      const canvas = $('#overlay').get(0)
+      const dims = faceapi.matchDimensions(canvas, videoEl, true)
+      const resizedResult = faceapi.resizeResults(result, dims)
+
+      if (withBoxes) {
+        //  faceapi.draw.drawDetections(canvas, resizedResult)
+        
+      }
+      // faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
+      try {
+        //let landmarks = await faceapi.detectFaceLandmarksTiny(videoEl)
+        let positions = resizedResult.landmarks.getMouth()
+        // console.log('positions are ', positions)
+        /*         const mouthStr = mouth.reduce((accum, point) => {
+                  const returned = Array.from(accum)
+                  returned.push(`${point.x}   ----   ${point.y}`)
+                  return returned
+                }, []).join() */
+        //  const mouthStr = `${mouth[0].x}   ----   ${mouth[0].y}`
+         document.getElementById('output').innerHTML = positions.length
+        let ctx = canvas.getContext('2d')
+        ctx.strokeStyle = 'rgb(255, 150,150)'
+        ctx.globalAlpha = .4
+        ctx.fillStyle = 'rgb(255, 150,150)'
+        ctx.moveTo(positions[0].x, positions[0].y)
+        ctx.beginPath()
+        // ctx.lineTo(mouth[2].x, mouth[2].y)
+        // this is upper lip top
+ /*        for (let i = 0; i < 7; i++) {
+          ctx.lineTo(positions[i].x, positions[i].y)
+        } */
+        // lower lip bottom
+/*         for (let i = 6; i < 13; i++) {
+          ctx.lineTo(positions[i].x, positions[i].y)
+        }  */
+        // upper lip bottom
+/*         for (let i = 12; i < 17; i++) {
+          ctx.lineTo(positions[i].x, positions[i].y)
+        }  */
+        // lower lip top 
+        for (let i = 16; i < 20; i++) {
+          ctx.lineTo(positions[i].x, positions[i].y)
+        } 
+       //  ctx.closePath()
+        ctx.stroke()
+       // ctx.fill()
+      } catch (e) {
+        console.log('error', e)
+      }
+    }
+
+    setTimeout(() => onPlay())
+  }
+
+  async function run() {
+    // load face detection and face landmark models
+    await changeFaceDetector(TINY_FACE_DETECTOR)
+    await faceapi.loadFaceLandmarkModel('/')
+    changeInputSize(224)
+
+    // try to access users webcam and stream the images
+    // to the video element
+    const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
+    const videoEl = $('#inputVideo').get(0)
+    videoEl.srcObject = stream
+  }
+
+  function updateResults() { }
+
+  $(document).ready(function () {
+    renderNavBar('#navbar', 'webcam_face_landmark_detection')
+    initFaceDetectionControls()
+    run()
+  })
+</script>
+</body>
+
 </html>
