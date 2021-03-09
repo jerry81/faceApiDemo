@@ -143,7 +143,7 @@
 
       if (withBoxes) {
         //  faceapi.draw.drawDetections(canvas, resizedResult)
-        
+
       }
       // faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
       try {
@@ -156,44 +156,49 @@
                   return returned
                 }, []).join() */
         //  const mouthStr = `${mouth[0].x}   ----   ${mouth[0].y}`
-         document.getElementById('output').innerHTML = positions.length
+        document.getElementById('output').innerHTML = positions.length
         let ctx = canvas.getContext('2d')
         ctx.strokeStyle = 'rgb(255, 150,150)'
         ctx.globalAlpha = .2
-        ctx.fillStyle = 'rgb(255, 150,255)'
+        ctx.fillStyle = 'rgb(255, 100,150)'
         ctx.moveTo(positions[0].x, positions[0].y)
         ctx.beginPath()
         // ctx.lineTo(mouth[2].x, mouth[2].y)
         // this is upper lip top
         for (let i = 0; i < 7; i++) {
           ctx.lineTo(positions[i].x, positions[i].y)
-        } 
+        }
         // upper lip bottom
         for (let i = 16; i >= 12; i--) {
           ctx.lineTo(positions[i].x, positions[i].y)
-        } 
-       // ctx.stroke()
+        }
+        // ctx.stroke()
         ctx.fill()
+        ctx.closePath()
+        ctx.beginPath()
         // lower lip top 
         ctx.moveTo(positions[16].x, positions[16].y)
-         for (let i = 16; i < 20; i++) {
+        for (let i = 16; i < 20; i++) {
           ctx.lineTo(positions[i].x, positions[i].y)
-        } 
+        }
         ctx.lineTo(positions[0].x, positions[0].y)
-        //ctx.stroke()
+        // ctx.stroke()
         // lower lip bottom
-         for (let i = 13; i >= 6; i--) {
+        for (let i = 13; i >= 6; i--) {
           ctx.lineTo(positions[i].x, positions[i].y)
-        }  
-       //  ctx.closePath()
+        }
+        //  ctx.closePath()
         ctx.fill()
+        ctx.closePath()
       } catch (e) {
         console.log('error', e)
       }
     }
 
-    setTimeout(() => onPlay())
+    requestAnimationFrame(onPlay)
   }
+
+  onPlay()
 
   async function run() {
     // load face detection and face landmark models
